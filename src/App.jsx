@@ -59,22 +59,26 @@ function App() {
         <Header theme={theme} toggleTheme={toggleTheme} />
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
         
-        {searchHistory.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginTop: '1rem',
-              marginBottom: '1rem'
-            }}
-          >
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', alignSelf: 'center', marginRight: '0.5rem' }}>Recent:</span>
-            {searchHistory.map((historyItem, index) => (
-              <button
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            marginTop: '1rem',
+            marginBottom: '1rem',
+            minHeight: '35px',
+            alignItems: 'center'
+          }}
+        >
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginRight: '0.5rem' }}>Recent:</span>
+          {searchHistory.length === 0 ? (
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic' }}>No recent searches</span>
+          ) : (
+            searchHistory.map((historyItem, index) => (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
                 key={index}
                 onClick={() => handleSearch(historyItem)}
                 style={{
@@ -97,10 +101,10 @@ function App() {
                 }}
               >
                 {historyItem}
-              </button>
-            ))}
-          </motion.div>
-        )}
+              </motion.button>
+            ))
+          )}
+        </div>
         
         <AnimatePresence mode="wait">
           {isLoading && (

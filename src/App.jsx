@@ -13,6 +13,10 @@ function App() {
   const [repos, setRepos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    const saved = localStorage.getItem('searchHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     // Set initial theme on document
@@ -35,6 +39,12 @@ function App() {
       
       const userRepos = await fetchUserRepos(username);
       setRepos(userRepos);
+      
+      setSearchHistory(prev => {
+        const updated = [username, ...prev.filter(u => u !== username)].slice(0, 5);
+        localStorage.setItem('searchHistory', JSON.stringify(updated));
+        return updated;
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -48,6 +58,49 @@ function App() {
       <div className="app-container">
         <Header theme={theme} toggleTheme={toggleTheme} />
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+        
+        {searchHistory.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginTop: '1rem',
+              marginBottom: '1rem'
+            }}
+          >
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', alignSelf: 'center', marginRight: '0.5rem' }}>Recent:</span>
+            {searchHistory.map((historyItem, index) => (
+              <button
+                key={index}
+                onClick={() => handleSearch(historyItem)}
+                style={{
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '20px',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--hover-bg)';
+                  e.currentTarget.style.borderColor = 'var(--accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--card-bg)';
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                }}
+              >
+                {historyItem}
+              </button>
+            ))}
+          </motion.div>
+        )}
         
         <AnimatePresence mode="wait">
           {isLoading && (
